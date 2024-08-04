@@ -14,15 +14,15 @@ var (
 )
 
 type Product struct {
-	ID       ID     `json:"id"`
-	Name     string `json:"name"`
-	Price    int    `json:"price"`
-	Quantity int    `json:"quantity"`
-	Category string `json:"category"`
+	ID       ID      `json:"id"`
+	Name     string  `json:"name"`
+	Price    float64 `json:"price"`
+	Quantity int     `json:"quantity"`
+	Category string  `json:"category"`
 	gorm.Model
 }
 
-func CreateProduct(name string, price int, quantity int, category string) (*Product, error) {
+func CreateProduct(name string, price float64, quantity int, category string) (*Product, error) {
 	product := Product{
 		ID:       NewID(),
 		Name:     name,
