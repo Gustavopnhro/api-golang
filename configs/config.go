@@ -1,6 +1,10 @@
 package configs
 
 import (
+	"fmt"
+	"log"
+	"path/filepath"
+
 	"github.com/go-chi/jwtauth"
 	"github.com/spf13/viper"
 )
@@ -21,35 +25,45 @@ type config struct {
 func LoadConfig(path string) (*config, error) {
 	var cfg *config
 
-	//Set name of the config
+	// Resolve the absolute path of the directory provided
+	absPath, err := filepath.Abs(path)
+	if err != nil {
+		return nil, fmt.Errorf("error resolving absolute path: %v", err)
+	}
+
+	// Set name of the config
 	viper.SetConfigName("app_config")
 
-	//Set type of the config, example, yaml, env, toml etc.
+	// Set type of the config, example, yaml, env, toml etc.
 	viper.SetConfigType("env")
 
-	//Add path from config file passed in function parameter
-	viper.AddConfigPath(path)
+	// Add path from config file passed in function parameter
+	viper.AddConfigPath(absPath)
 
-	//Catch file that will be used to load config
-	viper.SetConfigFile(".env")
+	// Catch file that will be used to load config
+	configFilePath := filepath.Join(absPath, ".env")
+	viper.SetConfigFile(configFilePath)
 
-	//This is a optional option that will give priority to variables defined not exported
+	// Print the path being used for debugging
+	log.Printf("Attempting to load configuration from: %s", configFilePath)
+
+	// This is an optional option that will give priority to variables defined not exported
 	viper.AutomaticEnv()
 
-	//Read config passed previously from viper configuration
+	// Read config passed previously from viper configuration
 	if err := viper.ReadInConfig(); err != nil {
-		panic(err)
+		return nil, fmt.Errorf("error reading config file: %v", err)
 	}
 
-	//Unmarshal the config into config struct
-	err := viper.Unmarshal(&cfg)
+	// Unmarshal the config into config struct
+	err = viper.Unmarshal(&cfg)
 	if err != nil {
-		panic(err)
+		return nil, fmt.Errorf("error unmarshaling config: %v", err)
 	}
 
-	//That will allows our program use generate JWT Tokens
+	// This will allow our program to use generate JWT Tokens
 	cfg.TokenAuth = jwtauth.New("HS256", []byte(cfg.JWTSecret), nil)
 
-	//Return our config structure with our .env configurations
-	return cfg, err
+	// Return our config structure with our .env configurations
+	return cfg, nil
 }
