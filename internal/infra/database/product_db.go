@@ -14,8 +14,7 @@ func NewProductInstance(db *gorm.DB) *Product {
 }
 
 func (p *Product) Create(product *entity.Product) error {
-	return p.DB.Create(&product).Error
-
+	return p.DB.Create(product).Error
 }
 
 func (p *Product) FindById(id string) (*entity.Product, error) {
@@ -34,8 +33,8 @@ func (p *Product) Update(product *entity.Product) error {
 	return p.DB.Save(product).Error
 }
 
-func (p *Product) Delete(product *entity.Product) error {
-	product, err := p.FindById(product.ID.String())
+func (p *Product) Delete(id string) error {
+	product, err := p.FindById(id)
 	if err != nil {
 		return err
 	}
