@@ -1,43 +1,38 @@
 package configs
 
 import (
-	"fmt"
-
 	"github.com/go-chi/jwtauth"
 	"github.com/spf13/viper"
 )
 
-type env_variables struct {
-	DBDriver      string
-	DBHost        string
-	DBPort        string
-	DBUser        string
-	DBPassword    string
-	DBName        string
-	WebServerPort string
-	JWTSecret     string
-	JWTExpiresIn  int
+type Config struct {
+	DBDriver      string `mapstructure:"DB_DRIVER"`
+	DBHost        string `mapstructure:"DB_HOST"`
+	DBPort        string `mapstructure:"DB_PORT"`
+	DBUser        string `mapstructure:"DB_USER"`
+	DBPassword    string `mapstructure:"DB_PASSWORD"`
+	DBName        string `mapstructure:"DB_NAME"`
+	WebServerPort string `mapstructure:"WEB_SERVER_PORT"`
+	JWTSecret     string `mapstructure:"JWTSecret"`
+	JWTExpiresIn  int    `mapstructure:"JWT_EXPIRES_IN"`
 	TokenAuth     *jwtauth.JWTAuth
 }
 
-func LoadConfig() (*env_variables, error) {
+func LoadConfig() (config Config, err error) {
 
-	var env_config *env_variables
-
-	viper.SetConfigName("env_variables")
-	viper.SetConfigType("env")
 	viper.AddConfigPath(".")
-	viper.SetConfigFile(".env")
+	viper.SetConfigName(".env")
+	viper.SetConfigType("env")
+
 	viper.AutomaticEnv()
 
-	err := viper.ReadInConfig()
+	err = viper.ReadInConfig()
 	if err != nil {
-		panic(fmt.Errorf("fatal error config file: %w", err))
+		return
 	}
 
-	err = viper.Unmarshal(&env_config)
+	err = viper.Unmarshal(&config)
 
-	env_config.TokenAuth = jwtauth.New("HS256", []byte(env_config.JWTSecret), nil)
-
-	return env_config, err
+	config.TokenAuth = jwtauth.New("HS256", []byte(config.JWTSecret), nil)
+	return
 }
