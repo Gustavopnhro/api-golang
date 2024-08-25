@@ -1,0 +1,21 @@
+services: 
+  db:
+    image: mysql:5.7
+    container_name: golang_database
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - golang_newtork
+  
+volumes:
+  db_data:
+
+networks:
+  golang_newtork:
